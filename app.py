@@ -60,7 +60,7 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         
-        if text == '資訊':
+        if text == 'information':
             line_flex_json = {
   "type": "bubble",
   "hero": {
@@ -213,4 +213,5 @@ def handle_message(event):
        
 
 if __name__ == "__main__":
+
     app.run()
