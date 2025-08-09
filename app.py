@@ -168,11 +168,7 @@ API_BASE_URL = os.getenv("API_BASE_URL")
 
 # 可使用的 LINE 使用者 ID 列表（White List）
 
-# 取出字串
-whitelist_str = os.getenv("WHITELIST", "")
-
-# 轉成 Python set
-whitelist = set(whitelist_str.split(","))
+WHITELIST = set(os.getenv("WHITELIST", "").split(","))
 
 # print(whitelist)
 
@@ -1081,3 +1077,4 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
