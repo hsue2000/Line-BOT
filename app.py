@@ -167,9 +167,11 @@ API_TOKEN = os.getenv("API_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL")
 
 # 可使用的 LINE 使用者 ID 列表（White List）
-
-WHITELIST = set(os.getenv("WHITELIST", "").split(","))
-
+whitelist = {
+    "Ub48499f073b0bd08e280ef8259978933",  # 用戶A
+    "Uyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",  # 用戶B
+    # 請將你自己的 LINE ID 也加入
+}
 # print(whitelist)
 
 
@@ -1077,5 +1079,6 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
