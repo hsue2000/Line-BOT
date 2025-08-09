@@ -162,7 +162,7 @@ last_results = []
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
-handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
+SECRET = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 API_TOKEN = os.getenv("API_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL")
 
@@ -179,7 +179,7 @@ def callback():
     body = request.get_data(as_text=True)
 
     try:
-        handler.handle(body, signature)
+        SECRET.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
 
@@ -378,7 +378,7 @@ from linebot.models import QuickReply, QuickReplyButton, MessageAction, TextSend
 import requests
 
 
-@handler.add(MessageEvent, TextMessage)
+@SECRET.add(MessageEvent, TextMessage)
 def handle_message(event):
 
     # 讀取用戶的ID
@@ -1077,4 +1077,5 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
