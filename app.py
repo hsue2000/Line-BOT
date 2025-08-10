@@ -3,7 +3,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import requests
-from dotenv import load_dotenv
+
 import os
 import requests
 from urllib.parse import quote
@@ -1149,3 +1149,4 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
