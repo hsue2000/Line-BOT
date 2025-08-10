@@ -226,7 +226,7 @@ def build_list_bubble(
                 "text": "名稱",
                 "size": "xs",
                 "weight": "bold",
-                "flex": 5,
+                "flex": 4,
                 "align": "center",
                 "wrap": True,
             },
@@ -244,7 +244,7 @@ def build_list_bubble(
                 "text": "等級",
                 "size": "xs",
                 "weight": "bold",
-                "flex": 2,
+                "flex": 3,
                 "align": "center",
                 "wrap": True,
             },
@@ -1149,4 +1149,5 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
