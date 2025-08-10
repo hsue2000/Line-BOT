@@ -776,7 +776,7 @@ def handle_message(event):
             flex = build_list_page(
                 res,
                 page=1,
-                title=f"查詢現狀：{val}",
+                title=f"查詢錢幣現狀：{val}",
                 query_cmd="查詢現狀",
                 query_val=val,
             )
@@ -1149,6 +1149,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
