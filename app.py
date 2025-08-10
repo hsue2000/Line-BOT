@@ -3,7 +3,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import requests
-
+from dotenv import load_dotenv
 import os
 import requests
 from urllib.parse import quote
@@ -191,7 +191,7 @@ def callback():
     return "OK"
 
 
-ROWS_PER_PAGE = 10  # 每頁筆數
+ROWS_PER_PAGE = 6  # 每頁筆數
 
 
 def build_list_bubble(
@@ -765,19 +765,20 @@ def handle_message(event):
     elif user_text.startswith("查詢現狀 "):
         Coin_Kind = user_text.replace("查詢現狀 ", "").strip()
 
-        # TODO: 這裡改成你的 API / DB 查詢
-        # 例如：api_url = f"{API_BASE_URL}?Nation={quote(country)}&like=1&token={API_TOKEN}"
-        # res = requests.get(api_url).json()
-
-        encoded_serial = quote(Coin_Kind)
-        api_url = f"{API_BASE_URL}?Coin_Kind={encoded_serial}&like=1&token={API_TOKEN}"
-        res = requests.get(api_url).json()
-
-        last_results = res  # 這裡 res 是 API 回傳的 list
+        val = user_text.replace("查詢現狀 ", "").strip()
+        encoded = quote(val)
+        api_url = f"{API_BASE_URL}?Coin_Kind={encoded}&like=1&token={API_TOKEN}"
+        res = requests.get(api_url).json()  # 預期回傳 list[dict]
 
         if isinstance(res, list) and res:
-            flex_msg = build_list_page(res, page=1)
-            line_bot_api.reply_message(event.reply_token, flex_msg)
+            flex = build_list_page(
+                res,
+                page=1,
+                title=f"查詢現狀：{val}",
+                query_cmd="查詢現狀",
+                query_val=val,
+            )
+            line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text="查無錢幣資料")
@@ -821,6 +822,8 @@ def handle_message(event):
                 key = "Company"
             elif cmd == "備註":
                 key = "Note"
+            elif cmd == "查詢現狀":
+                key = "Coin_Kind"
             else:
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(text="不支援的查詢類型")
@@ -1144,4 +1147,3 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
-
