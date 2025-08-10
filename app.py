@@ -227,7 +227,7 @@ def build_list_bubble(
                 "size": "xs",
                 "weight": "bold",
                 "flex": 4,
-                "align": "start",
+                "align": "center",
                 "wrap": True,
             },
             {
@@ -245,7 +245,7 @@ def build_list_bubble(
                 "size": "xs",
                 "weight": "bold",
                 "flex": 3,
-                "align": "start",
+                "align": "center",
                 "wrap": True,
             },
         ],
@@ -290,7 +290,7 @@ def build_list_bubble(
                         "type": "text",
                         "text": name,
                         "size": "sm",
-                        "flex": 5,
+                        "flex": 4,
                         "wrap": True,
                         "align": "start",
                     },
@@ -306,9 +306,9 @@ def build_list_bubble(
                         "type": "text",
                         "text": grade,
                         "size": "sm",
-                        "flex": 2,
+                        "flex": 3,
                         "wrap": True,
-                        "align": "end",
+                        "align": "start",
                     },
                 ],
                 "action": {
@@ -1149,6 +1149,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
