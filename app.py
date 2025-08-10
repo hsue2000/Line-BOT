@@ -3,7 +3,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import requests
-
+from dotenv import load_dotenv
 import os
 import requests
 from urllib.parse import quote
@@ -116,6 +116,7 @@ def build_detail_flex(data_dict):
                             "color": "#666666",
                             "flex": 3,
                             "weight": "bold",
+                            "align": "start",  # ✅ 靠左
                         },
                         {
                             "type": "text",
@@ -124,6 +125,7 @@ def build_detail_flex(data_dict):
                             "color": value_color,
                             "wrap": True,
                             "flex": 7,
+                            "align": "start",  # ✅ 靠左
                         },
                     ],
                 }
@@ -191,7 +193,7 @@ def callback():
     return "OK"
 
 
-ROWS_PER_PAGE = 6  # 每頁筆數
+ROWS_PER_PAGE = 10  # 每頁筆數
 
 
 def build_list_bubble(
@@ -458,7 +460,7 @@ def handle_message(event):
                         },
                         {
                             "type": "text",
-                            "text": "版本: V1.0 (2025/8/9)",
+                            "text": "版本: V1.0 (2025/8/10)",
                             "size": "sm",
                             "weight": "bold",
                             "wrap": True,
@@ -1147,4 +1149,3 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
-
