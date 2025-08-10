@@ -3,6 +3,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import requests
+from dotenv import load_dotenv
 import os
 import requests
 from urllib.parse import quote
@@ -18,6 +19,8 @@ from linebot.models import (
 
 import requests
 from linebot.models import FlexSendMessage
+
+session_store = {}  # { user_id: { "last_results": [...] } }
 
 
 def check_image_url(url):
@@ -171,6 +174,7 @@ whitelist = {
     "Uyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",  # 用戶B
     # 請將你自己的 LINE ID 也加入
 }
+
 # print(whitelist)
 
 
@@ -187,24 +191,28 @@ def callback():
     return "OK"
 
 
+ROWS_PER_PAGE = 10  # 每頁筆數
+
+
 def build_list_bubble(
     rows,
-    title="查詢結果",
-    page=1,
-    total_pages=1,
+    title,
+    page,
+    total_pages,
     row_action_prefix="錢幣",
     columns=("Serial_No", "Name", "Company", "Grade"),
+    query_cmd="名稱",
+    query_val="",
 ):
-    # 欄位標題列（置中 + 背景色）
+    # 標題列
     header = {
         "type": "box",
         "layout": "horizontal",
         "spacing": "sm",
-        "backgroundColor": "#E0E0E0",
         "contents": [
             {
                 "type": "text",
-                "text": "鑑定編號",
+                "text": "編號",
                 "size": "xs",
                 "weight": "bold",
                 "flex": 3,
@@ -213,106 +221,105 @@ def build_list_bubble(
             },
             {
                 "type": "text",
-                "text": "錢幣名稱",
+                "text": "名稱",
                 "size": "xs",
                 "weight": "bold",
-                "flex": 3,
+                "flex": 5,
                 "align": "center",
                 "wrap": True,
             },
             {
                 "type": "text",
-                "text": "鑑定公司",
+                "text": "鑑定",
                 "size": "xs",
                 "weight": "bold",
-                "flex": 3,
+                "flex": 2,
                 "align": "center",
                 "wrap": True,
             },
             {
                 "type": "text",
-                "text": "鑑定分數",
+                "text": "等級",
                 "size": "xs",
                 "weight": "bold",
-                "flex": 3,
+                "flex": 2,
                 "align": "center",
                 "wrap": True,
             },
         ],
     }
 
-    body_contents = [
+    body = [
         {
             "type": "text",
             "text": f"{title} (第{page}/{total_pages}頁)",
             "weight": "bold",
-            "size": "md",  # 標題稍微大
+            "size": "md",
             "align": "center",
-            "color": "#333333",
         },
         {"type": "separator", "margin": "md"},
         header,
         {"type": "separator", "margin": "sm"},
     ]
 
-    # 資料列（文字小 + 交錯底色）
+    # 資料列
     for idx, d in enumerate(rows):
         serial = str(d.get(columns[0], ""))
         name = str(d.get(columns[1], ""))
         company = str(d.get(columns[2], ""))
         grade = str(d.get(columns[3], ""))
 
-        row_box = {
-            "type": "box",
-            "layout": "horizontal",
-            "spacing": "sm",
-            "backgroundColor": "#FFFFBB" if idx % 2 == 0 else "#BBFFEE",  # 交錯底色
-            "contents": [
-                {
-                    "type": "text",
-                    "text": serial,
-                    "size": "sm",
-                    "flex": 3,
-                    "wrap": True,
-                    "align": "start",
+        body.append(
+            {
+                "type": "box",
+                "layout": "horizontal",
+                "spacing": "sm",
+                "backgroundColor": "#FFFFBB" if idx % 2 == 0 else "#BBFFEE",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": serial,
+                        "size": "sm",
+                        "flex": 3,
+                        "wrap": True,
+                        "align": "start",
+                    },
+                    {
+                        "type": "text",
+                        "text": name,
+                        "size": "sm",
+                        "flex": 5,
+                        "wrap": True,
+                        "align": "start",
+                    },
+                    {
+                        "type": "text",
+                        "text": company,
+                        "size": "sm",
+                        "flex": 2,
+                        "wrap": True,
+                        "align": "center",
+                    },
+                    {
+                        "type": "text",
+                        "text": grade,
+                        "size": "sm",
+                        "flex": 2,
+                        "wrap": True,
+                        "align": "end",
+                    },
+                ],
+                "action": {
+                    "type": "message",
+                    "label": "查詢詳情",
+                    "text": f"{row_action_prefix} {serial}",
                 },
-                {
-                    "type": "text",
-                    "text": name,
-                    "size": "sm",
-                    "flex": 3,
-                    "wrap": True,
-                    "align": "start",
-                },
-                {
-                    "type": "text",
-                    "text": company,
-                    "size": "sm",
-                    "flex": 3,
-                    "wrap": True,
-                    "align": "center",
-                },
-                {
-                    "type": "text",
-                    "text": grade,
-                    "size": "sm",
-                    "flex": 3,
-                    "align": "end",
-                    "wrap": True,
-                    "align": "center",
-                },
-            ],
-            "action": {
-                "type": "message",
-                "label": "查詢詳情",
-                "text": f"{row_action_prefix} {serial}",
-            },
-            "paddingAll": "6px",
-        }
-        body_contents.append(row_box)
-        body_contents.append({"type": "separator", "margin": "sm"})
+                "paddingAll": "6px",
+            }
+        )
+        body.append({"type": "separator", "margin": "sm"})
 
-    # 分頁按鈕
+    # 分頁按鈕（把查詢種類與值帶回去）
     footer_contents = []
     if page > 1:
         footer_contents.append(
@@ -323,7 +330,7 @@ def build_list_bubble(
                 "action": {
                     "type": "message",
                     "label": "上一頁",
-                    "text": f"列表 {page-1}",
+                    "text": f"列表 {query_cmd} {query_val} {page-1}",
                 },
             }
         )
@@ -336,7 +343,7 @@ def build_list_bubble(
                 "action": {
                     "type": "message",
                     "label": "下一頁",
-                    "text": f"列表 {page+1}",
+                    "text": f"列表 {query_cmd} {query_val} {page+1}",
                 },
             }
         )
@@ -347,31 +354,34 @@ def build_list_bubble(
             "type": "box",
             "layout": "vertical",
             "spacing": "sm",
-            "contents": body_contents,
+            "contents": body,
         },
-        "footer": (
-            {
-                "type": "box",
-                "layout": "horizontal",
-                "spacing": "sm",
-                "contents": footer_contents,
-            }
-            if footer_contents
-            else None
-        ),
     }
+    if footer_contents:
+        bubble["footer"] = {
+            "type": "box",
+            "layout": "horizontal",
+            "spacing": "sm",
+            "contents": footer_contents,
+        }
     return bubble
 
 
-def build_list_carousel(data, page=1, rows_per_bubble=10, title="查詢錢幣結果"):
-    total_pages = (len(data) + rows_per_bubble - 1) // rows_per_bubble
-    start_idx = (page - 1) * rows_per_bubble
-    page_data = data[start_idx : start_idx + rows_per_bubble]
-
+def build_list_page(all_rows, page=1, title="查詢結果", query_cmd="名稱", query_val=""):
+    total = len(all_rows)
+    total_pages = max(1, (total + ROWS_PER_PAGE - 1) // ROWS_PER_PAGE)
+    page = max(1, min(page, total_pages))
+    start = (page - 1) * ROWS_PER_PAGE
+    page_rows = all_rows[start : start + ROWS_PER_PAGE]
     bubble = build_list_bubble(
-        page_data, title=title, page=page, total_pages=total_pages
+        page_rows,
+        title=title,
+        page=page,
+        total_pages=total_pages,
+        query_cmd=query_cmd,
+        query_val=query_val,
     )
-    return FlexSendMessage(alt_text="查詢錢幣結果列表", contents=bubble)
+    return FlexSendMessage(alt_text="查詢結果列表", contents=bubble)
 
 
 from linebot.models import QuickReply, QuickReplyButton, MessageAction, TextSendMessage
@@ -435,7 +445,7 @@ def handle_message(event):
                             "text": "Ken Hsu Coin Collection",
                             "weight": "bold",
                             "size": "lg",
-                            "color": "#009FCC",
+                            "color": "#FF44AA",
                             "align": "center",
                         },
                         {
@@ -510,6 +520,7 @@ def handle_message(event):
                                             "type": "text",
                                             "text": "♦️ 名稱 [關鍵字]",
                                             "weight": "bold",
+                                            "size": "sm",
                                             "color": "#000000",
                                             "flex": 6,
                                         },
@@ -532,6 +543,7 @@ def handle_message(event):
                                             "type": "text",
                                             "text": "♦️ 國家 [關鍵字]",
                                             "weight": "bold",
+                                            "size": "sm",
                                             "color": "#000000",
                                             "flex": 6,
                                         },
@@ -554,6 +566,7 @@ def handle_message(event):
                                             "type": "text",
                                             "text": "♦️ 公司 [關鍵字]",
                                             "weight": "bold",
+                                            "size": "sm",
                                             "color": "#000000",
                                             "flex": 6,
                                         },
@@ -576,6 +589,7 @@ def handle_message(event):
                                             "type": "text",
                                             "text": "♦️ 備註 [關鍵字]",
                                             "weight": "bold",
+                                            "size": "sm",
                                             "color": "#000000",
                                             "flex": 6,
                                         },
@@ -598,6 +612,7 @@ def handle_message(event):
                                             "type": "text",
                                             "text": "♦️ 現狀",
                                             "weight": "bold",
+                                            "size": "sm",
                                             "color": "#000000",
                                             "flex": 6,
                                         },
@@ -620,6 +635,7 @@ def handle_message(event):
                                             "type": "text",
                                             "text": "♦️ 錢幣 [編號]",
                                             "weight": "bold",
+                                            "size": "sm",
                                             "color": "#000000",
                                             "flex": 6,
                                         },
@@ -642,6 +658,7 @@ def handle_message(event):
                                             "type": "text",
                                             "text": "♦️ 關於",
                                             "weight": "bold",
+                                            "size": "sm",
                                             "color": "#000000",
                                             "flex": 6,
                                         },
@@ -664,6 +681,7 @@ def handle_message(event):
                                             "type": "text",
                                             "text": "♦️ ? 或 ？",
                                             "weight": "bold",
+                                            "size": "sm",
                                             "color": "#000000",
                                             "flex": 6,
                                         },
@@ -758,7 +776,7 @@ def handle_message(event):
         last_results = res  # 這裡 res 是 API 回傳的 list
 
         if isinstance(res, list) and res:
-            flex_msg = build_list_carousel(res, page=1)
+            flex_msg = build_list_page(res, page=1)
             line_bot_api.reply_message(event.reply_token, flex_msg)
         else:
             line_bot_api.reply_message(
@@ -767,34 +785,82 @@ def handle_message(event):
         return
 
     # 列表頁
-    elif user_text.startswith("名稱 "):
-        serial_value = user_text.replace("名稱 ", "").strip()
-        encoded_serial = quote(serial_value)
-        api_url = f"{API_BASE_URL}?Coin_Name={encoded_serial}&like=1&token={API_TOKEN}"
-        res = requests.get(api_url).json()
-
-        last_results = res  # 這裡 res 是 API 回傳的 list
+    # ① 第一次查詢（名稱 關鍵字）
+    if user_text.startswith("名稱 "):
+        val = user_text.replace("名稱 ", "").strip()
+        encoded = quote(val)
+        api_url = f"{API_BASE_URL}?Coin_Name={encoded}&like=1&token={API_TOKEN}"
+        res = requests.get(api_url).json()  # 預期回傳 list[dict]
 
         if isinstance(res, list) and res:
-            flex_msg = build_list_carousel(res, page=1)
-            line_bot_api.reply_message(event.reply_token, flex_msg)
+            flex = build_list_page(
+                res, page=1, title=f"名稱：{val}", query_cmd="名稱", query_val=val
+            )
+            line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text="查無錢幣資料")
             )
         return
 
-    elif user_text.startswith("國家 "):
-        serial_value = user_text.replace("國家 ", "").strip()
-        encoded_serial = quote(serial_value)
-        api_url = f"{API_BASE_URL}?Nation={encoded_serial}&like=1&token={API_TOKEN}"
-        res = requests.get(api_url).json()
+    # ② 翻頁（列表 名稱 關鍵字 頁碼）
+    elif user_text.startswith("列表 "):
+        parts = user_text.split(" ", 3)  # ["列表", "名稱", "<val>", "<page>"]
+        if len(parts) == 4:
+            _, cmd, val, page_str = parts
+            try:
+                page = int(page_str)
+            except ValueError:
+                page = 1
 
-        last_results = res  # 這裡 res 是 API 回傳的 list
+            if cmd == "名稱":
+                key = "Coin_Name"
+            elif cmd == "國家":
+                key = "Nation"
+            elif cmd == "公司":
+                key = "Company"
+            elif cmd == "備註":
+                key = "Note"
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(text="不支援的查詢類型")
+                )
+                return
+
+            encoded = quote(val)
+            api_url = f"{API_BASE_URL}?{key}={encoded}&like=1&token={API_TOKEN}"
+            res = requests.get(api_url).json()
+
+            if isinstance(res, list) and res:
+                flex = build_list_page(
+                    res,
+                    page=page,
+                    title=f"名稱：{val}",
+                    query_cmd=cmd,
+                    query_val=val,
+                )
+                line_bot_api.reply_message(event.reply_token, flex)
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(text="查無錢幣資料")
+                )
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="分頁參數不足，請重新查詢")
+            )
+        return
+
+    elif user_text.startswith("國家 "):
+        val = user_text.replace("國家 ", "").strip()
+        encoded = quote(val)
+        api_url = f"{API_BASE_URL}?Nation={encoded}&like=1&token={API_TOKEN}"
+        res = requests.get(api_url).json()  # 預期回傳 list[dict]
 
         if isinstance(res, list) and res:
-            flex_msg = build_list_carousel(res, page=1)
-            line_bot_api.reply_message(event.reply_token, flex_msg)
+            flex = build_list_page(
+                res, page=1, title=f"國家：{val}", query_cmd="國家", query_val=val
+            )
+            line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text="查無錢幣資料")
@@ -802,16 +868,16 @@ def handle_message(event):
         return
 
     elif user_text.startswith("公司 "):
-        serial_value = user_text.replace("公司 ", "").strip()
-        encoded_serial = quote(serial_value)
-        api_url = f"{API_BASE_URL}?Company={encoded_serial}&like=1&token={API_TOKEN}"
-        res = requests.get(api_url).json()
-
-        last_results = res  # 這裡 res 是 API 回傳的 list
+        val = user_text.replace("公司 ", "").strip()
+        encoded = quote(val)
+        api_url = f"{API_BASE_URL}?Company={encoded}&like=1&token={API_TOKEN}"
+        res = requests.get(api_url).json()  # 預期回傳 list[dict]
 
         if isinstance(res, list) and res:
-            flex_msg = build_list_carousel(res, page=1)
-            line_bot_api.reply_message(event.reply_token, flex_msg)
+            flex = build_list_page(
+                res, page=1, title=f"公司{val}", query_cmd="公司", query_val=val
+            )
+            line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text="查無錢幣資料")
@@ -819,16 +885,16 @@ def handle_message(event):
         return
 
     elif user_text.startswith("備註 "):
-        serial_value = user_text.replace("備註 ", "").strip()
-        encoded_serial = quote(serial_value)
-        api_url = f"{API_BASE_URL}?Note={encoded_serial}&like=1&token={API_TOKEN}"
-        res = requests.get(api_url).json()
-
-        last_results = res  # 這裡 res 是 API 回傳的 list
+        val = user_text.replace("備註 ", "").strip()
+        encoded = quote(val)
+        api_url = f"{API_BASE_URL}?Note={encoded}&like=1&token={API_TOKEN}"
+        res = requests.get(api_url).json()  # 預期回傳 list[dict]
 
         if isinstance(res, list) and res:
-            flex_msg = build_list_carousel(res, page=1)
-            line_bot_api.reply_message(event.reply_token, flex_msg)
+            flex = build_list_page(
+                res, page=1, title=f"備註{val}", query_cmd="備註", query_val=val
+            )
+            line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text="查無錢幣資料")
@@ -847,7 +913,7 @@ def handle_message(event):
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text="查無錢幣資料")
             )
-        return
+        # return
 
     elif user_text == "數量":
         # 傳送查詢代碼給 PHP
@@ -1078,7 +1144,3 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
-
-
-
-
