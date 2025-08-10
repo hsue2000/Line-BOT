@@ -308,7 +308,7 @@ def build_list_bubble(
                         "size": "sm",
                         "flex": 3,
                         "wrap": True,
-                        "align": "start",
+                        "align": "center",
                     },
                 ],
                 "action": {
@@ -1149,6 +1149,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
