@@ -202,7 +202,7 @@ def build_list_bubble(
     page,
     total_pages,
     row_action_prefix="錢幣",
-    columns=("Serial_No", "Name", "Company", "Grade"),
+    columns=("Serial_No", "Name", "Company", "Grade", "Material"),
     query_cmd="名稱",
     query_val="",
 ):
@@ -212,15 +212,6 @@ def build_list_bubble(
         "layout": "horizontal",
         "spacing": "sm",
         "contents": [
-            {
-                "type": "text",
-                "text": "編號",
-                "size": "xs",
-                "weight": "bold",
-                "flex": 3,
-                "align": "center",
-                "wrap": True,
-            },
             {
                 "type": "text",
                 "text": "名稱",
@@ -241,7 +232,16 @@ def build_list_bubble(
             },
             {
                 "type": "text",
-                "text": "等級",
+                "text": "分數",
+                "size": "xs",
+                "weight": "bold",
+                "flex": 3,
+                "align": "center",
+                "wrap": True,
+            },
+            {
+                "type": "text",
+                "text": "材質",
                 "size": "xs",
                 "weight": "bold",
                 "flex": 3,
@@ -266,10 +266,11 @@ def build_list_bubble(
 
     # 資料列
     for idx, d in enumerate(rows):
-        serial = str(d.get(columns[0], ""))
+        serial_no = str(d.get(columns[0], ""))
         name = str(d.get(columns[1], ""))
         company = str(d.get(columns[2], ""))
         grade = str(d.get(columns[3], ""))
+        material = str(d.get(columns[4], ""))
 
         body.append(
             {
@@ -278,14 +279,6 @@ def build_list_bubble(
                 "spacing": "sm",
                 "backgroundColor": "#FFFFBB" if idx % 2 == 0 else "#BBFFEE",
                 "contents": [
-                    {
-                        "type": "text",
-                        "text": serial,
-                        "size": "sm",
-                        "flex": 3,
-                        "wrap": True,
-                        "align": "start",
-                    },
                     {
                         "type": "text",
                         "text": name,
@@ -310,11 +303,19 @@ def build_list_bubble(
                         "wrap": True,
                         "align": "center",
                     },
+                    {
+                        "type": "text",
+                        "text": material,
+                        "size": "sm",
+                        "flex": 3,
+                        "wrap": True,
+                        "align": "center",
+                    },
                 ],
                 "action": {
                     "type": "message",
                     "label": "查詢詳情",
-                    "text": f"{row_action_prefix} {serial}",
+                    "text": f"{row_action_prefix} {serial_no}",
                 },
                 "paddingAll": "6px",
             }
@@ -1149,10 +1150,3 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
-
-
-
-
-
-
-
