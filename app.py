@@ -196,12 +196,19 @@ def callback():
 ROWS_PER_PAGE = 10  # 每頁筆數
 
 
+def safe_text(v, default="-"):
+    # 把 None / 空白 轉成預設字元，並確保是 str
+    s = "" if v is None else str(v)
+    s = s.strip()
+    return s if s else default
+
+
 def build_list_bubble(
     rows,
     title,
     page,
     total_pages,
-    row_action_prefix="錢幣",
+    row_action_prefix="編號",
     columns=("Serial_No", "Name", "Company", "Grade", "Material"),
     query_cmd="名稱",
     query_val="",
@@ -461,7 +468,7 @@ def handle_message(event):
                         },
                         {
                             "type": "text",
-                            "text": "版本: V1.0 (2025/8/10)",
+                            "text": "版本: V1.0 (2025/8/13)",
                             "size": "sm",
                             "weight": "bold",
                             "wrap": True,
@@ -636,7 +643,7 @@ def handle_message(event):
                                     "contents": [
                                         {
                                             "type": "text",
-                                            "text": "♦️ 錢幣 [編號]",
+                                            "text": "♦️ 編號 [編號]",
                                             "weight": "bold",
                                             "size": "sm",
                                             "color": "#000000",
@@ -907,9 +914,9 @@ def handle_message(event):
             )
         return
 
-    elif user_text.startswith("錢幣 "):
+    elif user_text.startswith("編號 "):
 
-        serial_no = user_text.replace("錢幣 ", "").strip()
+        serial_no = user_text.replace("編號 ", "").strip()
         api_url = f"{API_BASE_URL}?Serial={serial_no}&token={API_TOKEN}"
         res = requests.get(api_url).json()
         if isinstance(res, list) and res:
@@ -1064,7 +1071,7 @@ def handle_message(event):
                                                 "type": "text",
                                                 "text": str(sale),
                                                 "size": "md",
-                                                "color": "#0000FF",
+                                                "color": "#FF00FF",
                                                 "flex": 1,
                                             },
                                         ],
@@ -1085,7 +1092,7 @@ def handle_message(event):
                                                 "type": "text",
                                                 "text": str(give),
                                                 "size": "md",
-                                                "color": "#0000FF",
+                                                "color": "#FF00FF",
                                                 "flex": 1,
                                             },
                                         ],
@@ -1106,7 +1113,7 @@ def handle_message(event):
                                                 "type": "text",
                                                 "text": str(changed),
                                                 "size": "md",
-                                                "color": "#0000FF",
+                                                "color": "#FF00FF",
                                                 "flex": 1,
                                             },
                                         ],
