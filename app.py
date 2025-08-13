@@ -505,7 +505,7 @@ def handle_message(event):
                         {
                             "type": "image",
                             "url": "https://hsue2000.synology.me/images/head3.png",  # 圖片 URL (必須 HTTPS)
-                            "size": "sm",
+                            "size": "md",
                             "aspect_ratio": "1:1",
                             "aspect_mode": "cover",
                         },
@@ -1157,3 +1157,4 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
