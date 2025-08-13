@@ -468,7 +468,7 @@ def handle_message(event):
                         },
                         {
                             "type": "text",
-                            "text": "版本: V1.0 (2025/8/13)",
+                            "text": "版本: V1.0 (2025/8/14)",
                             "size": "sm",
                             "weight": "bold",
                             "wrap": True,
@@ -629,6 +629,29 @@ def handle_message(event):
                                         {
                                             "type": "text",
                                             "text": "選擇項目後查詢",
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#007AFF",
+                                            "flex": 6,
+                                            "wrap": True,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "♦️ 數量",
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#000000",
+                                            "flex": 6,
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "查詢錢幣數量",
                                             "weight": "bold",
                                             "size": "sm",
                                             "color": "#007AFF",
@@ -1008,7 +1031,7 @@ def handle_message(event):
                                                 "type": "text",
                                                 "text": str(real),
                                                 "size": "md",
-                                                "color": "#0000FF",
+                                                "color": "#FF5511",
                                                 "flex": 1,
                                             },
                                         ],
@@ -1050,7 +1073,7 @@ def handle_message(event):
                                                 "type": "text",
                                                 "text": str(identify),
                                                 "size": "md",
-                                                "color": "#0000FF",
+                                                "color": "#AA7700",
                                                 "flex": 1,
                                             },
                                         ],
@@ -1134,7 +1157,7 @@ def handle_message(event):
                                                 "type": "text",
                                                 "text": str(no_input),
                                                 "size": "md",
-                                                "color": "#0000FF",
+                                                "color": "#9900FF",
                                                 "flex": 1,
                                             },
                                         ],
@@ -1157,4 +1180,3 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
-
