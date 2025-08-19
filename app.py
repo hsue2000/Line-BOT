@@ -95,6 +95,7 @@ def build_detail_flex(data_dict):
         "Serial_No": "#000000",  # 黑色
         "Location": "#227700",  # 綠色
         "Company": "#FF44AA",  # 粉紅色
+        "Coin_Count": "#8B4513",  # 咖啡色
     }
 
     # ===== 欄位 rows =====
@@ -135,16 +136,24 @@ def build_detail_flex(data_dict):
     bubble = {
         "type": "bubble",
         "hero": {
-            "type": "image",
-            "url": pic_url,
-            "size": "xl",  # hero 最大值
-            "aspectRatio": "4:3",  # 比 1:1 高
-            "aspectMode": "fit",  # 等比例縮小完整顯示
-            "action": {"type": "uri", "label": "查看原圖", "uri": pic_url},
+            "type": "box",  # 用 box 包住 image，才能設定背景色
+            "layout": "vertical",
+            "backgroundColor": "#FFFFF0",
+            "contents": [
+                {
+                    "type": "image",
+                    "url": pic_url,
+                    "size": "xl",  # hero 最大值
+                    "aspectRatio": "4:3",  # 比 1:1 高
+                    "aspectMode": "fit",  # 等比例縮小完整顯示
+                    "action": {"type": "uri", "label": "查看原圖", "uri": pic_url},
+                }
+            ],
         },
         "body": {
             "type": "box",
             "layout": "vertical",
+            "backgroundColor": "#FFFFF0",
             "contents": [
                 {"type": "text", "text": title, "weight": "bold", "size": "lg"},
                 {
@@ -156,9 +165,14 @@ def build_detail_flex(data_dict):
                 },
             ],
         },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#FFFFF0",
+        },
     }
 
-    return FlexSendMessage(alt_text="詳細資訊", contents=bubble)
+    return FlexSendMessage(alt_text="錢幣詳細資訊", contents=bubble)
 
 
 last_results = []
@@ -170,12 +184,42 @@ SECRET = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 API_TOKEN = os.getenv("API_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL")
 
+
 # 可使用的 LINE 使用者 ID 列表（White List）
+whitelist = {
+    "Ub48499f073b0bd08e280ef8259978933",  # 用戶A
+    "Uyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",  # 用戶B
+    # 請將你自己的 LINE ID 也加入
+}
+
+"""
 # 從 Vercel 的環境變數讀取
 whitelist_str = os.getenv("LINE_WHITELIST", "")
 
 # 轉成 set（自動去除空白）
 whitelist = {uid.strip() for uid in whitelist_str.split(",") if uid.strip()}
+# print(whitelist)
+"""
+
+CHANNEL_ACCESS_TOKEN = (os.getenv("LINE_CHANNEL_ACCESS_TOKEN") or "").strip().strip('"')
+CHANNEL_SECRET = (os.getenv("LINE_CHANNEL_SECRET") or "").strip().strip('"')
+
+
+def show_loading_raw(user_id: str, seconds: int = 10):
+    if not (user_id and user_id.startswith("U")):
+        return
+    seconds = max(5, min(int(seconds), 60))
+    if seconds % 5 != 0:
+        seconds = int(round(seconds / 5) * 5)
+    requests.post(
+        "https://api.line.me/v2/bot/chat/loading/start",
+        headers={
+            "Authorization": f"Bearer {CHANNEL_ACCESS_TOKEN}",
+            "Content-Type": "application/json",
+        },
+        json={"chatId": user_id, "loadingSeconds": seconds},
+        timeout=10,
+    )
 
 
 @app.route("/callback", methods=["POST"])
@@ -282,7 +326,7 @@ def build_list_bubble(
                 "type": "box",
                 "layout": "horizontal",
                 "spacing": "sm",
-                "backgroundColor": "#FFFFBB" if idx % 2 == 0 else "#BBFFEE",
+                "backgroundColor": "#FFFFBB" if idx % 2 == 0 else "#E0FFFF",
                 "contents": [
                     {
                         "type": "text",
@@ -404,6 +448,9 @@ def handle_message(event):
     user_id = event.source.user_id
     # print("發訊息的用戶 ID:",user_id)
 
+    if user_id:
+        show_loading_raw(user_id, seconds=10)
+
     url = f"https://hsue2000.synology.me/api/search.php?token={API_TOKEN}"
     data = {"action": "GET_COUNT"}
 
@@ -466,7 +513,7 @@ def handle_message(event):
                         },
                         {
                             "type": "text",
-                            "text": "版本: V1.0 (2025/8/14)",
+                            "text": "版本: V1.0 (2025/8/19)",
                             "size": "sm",
                             "weight": "bold",
                             "wrap": True,
@@ -1171,11 +1218,10 @@ def handle_message(event):
     else:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=f"❌ 查詢失敗，HTTP 錯誤碼：{response.status_code}"),
+            TextSendMessage(text=f"❌ 指令錯誤,請重新輸入!"),
         )
         return
 
 
 if __name__ == "__main__":
     app.run(port=5000)
-
