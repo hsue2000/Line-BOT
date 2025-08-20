@@ -9,15 +9,31 @@ import requests
 from urllib.parse import quote
 from linebot.models import TextSendMessage, FlexSendMessage
 
+from linebot import LineBotApi
+from linebot.models import (
+    RichMenu,
+    RichMenuArea,
+    RichMenuBounds,
+    RichMenuSize,
+    MessageAction,
+    URIAction,
+)
+
 from linebot.models import (
     TextSendMessage,
     FlexSendMessage,
+    RichMenuSize,
+    RichMenuBounds,
+    RichMenu,
+    RichMenuArea,
     QuickReply,
     QuickReplyButton,
     MessageAction,
 )
 
 import requests
+import json
+
 from linebot.models import FlexSendMessage
 
 session_store = {}  # { user_id: { "last_results": [...] } }
@@ -184,15 +200,70 @@ SECRET = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
 API_TOKEN = os.getenv("API_TOKEN")
 API_BASE_URL = os.getenv("API_BASE_URL")
 
+
+# 可使用的 LINE 使用者 ID 列表（White List）
+whitelist = {
+    "Ub48499f073b0bd08e280ef8259978933",  # 用戶A
+    "Uyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",  # 用戶B
+    # 請將你自己的 LINE ID 也加入
+}
+
+"""
 # 從 Vercel 的環境變數讀取
 whitelist_str = os.getenv("LINE_WHITELIST", "")
 
 # 轉成 set（自動去除空白）
 whitelist = {uid.strip() for uid in whitelist_str.split(",") if uid.strip()}
 # print(whitelist)
+"""
 
 CHANNEL_ACCESS_TOKEN = (os.getenv("LINE_CHANNEL_ACCESS_TOKEN") or "").strip().strip('"')
 CHANNEL_SECRET = (os.getenv("LINE_CHANNEL_SECRET") or "").strip().strip('"')
+
+# 使用你的 Channel Access Token
+line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+
+# 建立 Rich Menu
+rich_menu = RichMenu(
+    size=RichMenuSize(width=2500, height=1686),  # 官方規格
+    selected=False,  # 是否預設選單
+    name="四格選單範例",  # 後台管理用名稱
+    chat_bar_text="打開選單",  # 使用者點選時顯示的文字
+    areas=[
+        # 左上區塊
+        RichMenuArea(
+            bounds=RichMenuBounds(x=0, y=0, width=1250, height=843),
+            action=MessageAction(label="左上", text="數量"),
+        ),
+        # 右上區塊
+        RichMenuArea(
+            bounds=RichMenuBounds(x=1250, y=0, width=1250, height=843),
+            action=MessageAction(label="右上", text="現狀"),
+        ),
+        # 左下區塊
+        RichMenuArea(
+            bounds=RichMenuBounds(x=0, y=843, width=1250, height=843),
+            action=MessageAction(label="右上", text="?"),
+        ),
+        # 右下區塊
+        RichMenuArea(
+            bounds=RichMenuBounds(x=1250, y=843, width=1250, height=843),
+            action=MessageAction(label="右下", text="關於"),
+        ),
+    ],
+)
+
+# 建立圖文選單
+rich_menu_id = line_bot_api.create_rich_menu(rich_menu=rich_menu)
+print("Rich Menu ID:", rich_menu_id)
+
+# 上傳圖文選單圖片 (需先準備一張 2500x1686 px PNG 或 JPG)
+with open("./static/richmenu_2x2.png", "rb") as f:
+    line_bot_api.set_rich_menu_image(rich_menu_id, "image/png", f)
+
+# 設定為預設選單 (讓所有人都能看到)
+line_bot_api.set_default_rich_menu(rich_menu_id)
+######################################################################
 
 
 def show_loading_raw(user_id: str, seconds: int = 10):
@@ -1215,4 +1286,3 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
-
