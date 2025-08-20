@@ -212,63 +212,6 @@ whitelist = {uid.strip() for uid in whitelist_str.split(",") if uid.strip()}
 CHANNEL_ACCESS_TOKEN = (os.getenv("LINE_CHANNEL_ACCESS_TOKEN") or "").strip().strip('"')
 CHANNEL_SECRET = (os.getenv("LINE_CHANNEL_SECRET") or "").strip().strip('"')
 
-# 使用你的 Channel Access Token
-line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
-
-# 建立 Rich Menu
-rich_menu = RichMenu(
-    size=RichMenuSize(width=2500, height=1686),  # 官方規格
-    selected=False,  # 是否預設選單
-    name="四格選單範例",  # 後台管理用名稱
-    chat_bar_text="打開選單",  # 使用者點選時顯示的文字
-    areas=[
-        # 左上區塊
-        RichMenuArea(
-            bounds=RichMenuBounds(x=0, y=0, width=1250, height=843),
-            action=MessageAction(label="左上", text="數量"),
-        ),
-        # 右上區塊
-        RichMenuArea(
-            bounds=RichMenuBounds(x=1250, y=0, width=1250, height=843),
-            action=MessageAction(label="右上", text="現狀"),
-        ),
-        # 左下區塊
-        RichMenuArea(
-            bounds=RichMenuBounds(x=0, y=843, width=1250, height=843),
-            action=MessageAction(label="右上", text="?"),
-        ),
-        # 右下區塊
-        RichMenuArea(
-            bounds=RichMenuBounds(x=1250, y=843, width=1250, height=843),
-            action=MessageAction(label="右下", text="關於"),
-        ),
-    ],
-)
-
-try:
-        rich_menu_id = line_bot_api.create_rich_menu(rich_menu=rich_menu)
-
-        # 2. 透過網址下載圖片
-        image_url = "https://hsue2000.synology.me/images/richmenu_2x2.png" 
-        response = requests.get(image_url)
-        image_data = BytesIO(response.content)
-
-        # 3. 上傳圖片
-        line_bot_api.set_rich_menu_image(rich_menu_id, "image/png", image_data)
-
-        # 4. 設為預設選單
-        line_bot_api.set_default_rich_menu(rich_menu_id)
-
-        return {
-            "statusCode": 200,
-            "body": json.dumps({"richMenuId": rich_menu_id})
-        }
-
-    except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": json.dumps({"error": str(e)})
-        }
 ######################################################################
 
 
@@ -1292,6 +1235,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
