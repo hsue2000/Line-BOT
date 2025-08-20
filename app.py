@@ -250,9 +250,13 @@ rich_menu_id = line_bot_api.create_rich_menu(rich_menu=rich_menu)
 print("Rich Menu ID:", rich_menu_id)
 
 # 上傳圖文選單圖片 (需先準備一張 2500x1686 px PNG 或 JPG)
-with open("./richmenu_2x2.png", "rb") as f:
-    line_bot_api.set_rich_menu_image(rich_menu_id, "image/png", f)
+from io import BytesIO
 
+image_url = "https://hsue2000.synology.me/images/richmenu_2x2.png"
+response = requests.get(image_url)
+image_data = BytesIO(response.content)
+
+line_bot_api.set_rich_menu_image(rich_menu_id, "image/png", image_data)
 # 設定為預設選單 (讓所有人都能看到)
 line_bot_api.set_default_rich_menu(rich_menu_id)
 ######################################################################
@@ -1278,4 +1282,5 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
