@@ -213,7 +213,7 @@ CHANNEL_ACCESS_TOKEN = (os.getenv("LINE_CHANNEL_ACCESS_TOKEN") or "").strip().st
 CHANNEL_SECRET = (os.getenv("LINE_CHANNEL_SECRET") or "").strip().strip('"')
 
 # 使用你的 Channel Access Token
-line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 
 # 建立 Rich Menu
 rich_menu = RichMenu(
@@ -1292,6 +1292,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
