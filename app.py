@@ -361,7 +361,14 @@ def build_list_bubble(
     body = [
         {
             "type": "text",
-            "text": f"{title} (第{page}/{total_pages}頁)",
+            "text": f"{title}",
+            "weight": "bold",
+            "size": "md",
+            "align": "center",
+        },
+        {
+            "type": "text",
+            "text": f"(第{page}/{total_pages}頁)",
             "weight": "bold",
             "size": "md",
             "align": "center",
@@ -439,7 +446,7 @@ def build_list_bubble(
                 "height": "sm",
                 "action": {
                     "type": "message",
-                    "label": "上一頁",
+                    "label": "⏮️ 上一頁",
                     "text": f"列表 {query_cmd} {query_val} {page-1}",
                 },
             }
@@ -452,7 +459,7 @@ def build_list_bubble(
                 "height": "sm",
                 "action": {
                     "type": "message",
-                    "label": "下一頁",
+                    "label": "⏭️ 下一頁",
                     "text": f"列表 {query_cmd} {query_val} {page+1}",
                 },
             }
@@ -507,7 +514,7 @@ def handle_message(event):
     # print("發訊息的用戶 ID:",user_id)
 
     if user_id:
-        show_loading_raw(user_id, seconds=10)
+        show_loading_raw(user_id, seconds=15)
 
     url = f"https://hsue2000.synology.me/api/search.php?token={API_TOKEN}"
     data = {"action": "GET_COUNT"}
@@ -571,7 +578,7 @@ def handle_message(event):
                         },
                         {
                             "type": "text",
-                            "text": "版本: V1.0 (2025/8/21)",
+                            "text": "版本: V1.0 (2025/8/24)",
                             "size": "sm",
                             "weight": "bold",
                             "wrap": True,
@@ -740,6 +747,52 @@ def handle_message(event):
                                         },
                                     ],
                                 },
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "♦️ 數量",
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#000000",
+                                            "flex": 6,
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "查詢錢幣數量",
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#007AFF",
+                                            "flex": 6,
+                                            "wrap": True,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "baseline",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "♦️ 現狀",
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#000000",
+                                            "flex": 6,
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "查詢錢幣現狀",
+                                            "weight": "bold",
+                                            "size": "sm",
+                                            "color": "#007AFF",
+                                            "flex": 6,
+                                            "wrap": True,
+                                        },
+                                    ],
+                                },
                             ],
                         },
                     ],
@@ -754,12 +807,19 @@ def handle_message(event):
     if user_text == "現狀":
 
         # TODO: 這裡改成你的查詢（依 keyword 找到候選現狀）
-        matched_countries = ["未輸入", "鑑定中", "已返回", "已售出", "已贈送", "已換盒"]
+        matched_countries = [
+            ("未輸入", "📝     未輸入"),
+            ("鑑定中", "🔍     鑑定中"),
+            ("已返回", "🗒️     已返回"),
+            ("已售出", "💰     已售出"),
+            ("已贈送", "🎁     已贈送"),
+            ("已換盒", "📦     已換盒"),
+        ]
 
         # 把每個現況做成一顆按鈕（同一個 bubble 內垂直排列）
 
         buttons = []
-        for name in matched_countries:
+        for raw_text, label_text in matched_countries:
             buttons.append(
                 {
                     "type": "button",
@@ -768,8 +828,8 @@ def handle_message(event):
                     "margin": "sm",
                     "action": {
                         "type": "message",
-                        "label": name,  # 按鈕上顯示的文字
-                        "text": f"查詢現狀 {name}",  # 點了會送這句話回來
+                        "label": label_text,  # 按鈕顯示：含 emoji
+                        "text": f"查詢現狀 {raw_text}",  # 點了會送這句話回來
                     },
                 }
             )
@@ -825,7 +885,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text="查無錢幣資料")
+                event.reply_token, TextSendMessage(text="⚠️ 查無錢幣資料")
             )
         return
 
@@ -844,7 +904,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text="查無錢幣資料")
+                event.reply_token, TextSendMessage(text="⚠️ 查無錢幣資料")
             )
         return
 
@@ -870,7 +930,7 @@ def handle_message(event):
                 key = "Coin_Kind"
             else:
                 line_bot_api.reply_message(
-                    event.reply_token, TextSendMessage(text="不支援的查詢類型")
+                    event.reply_token, TextSendMessage(text="⚠️ 不支援的查詢類型")
                 )
                 return
 
@@ -889,11 +949,11 @@ def handle_message(event):
                 line_bot_api.reply_message(event.reply_token, flex)
             else:
                 line_bot_api.reply_message(
-                    event.reply_token, TextSendMessage(text="查無錢幣資料")
+                    event.reply_token, TextSendMessage(text="⚠️ 查無錢幣資料")
                 )
         else:
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text="分頁參數不足，請重新查詢")
+                event.reply_token, TextSendMessage(text="⚠️ 分頁參數不足，請重新查詢")
             )
         return
 
@@ -910,7 +970,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text="查無錢幣資料")
+                event.reply_token, TextSendMessage(text="⚠️ 查無錢幣資料")
             )
         return
 
@@ -927,7 +987,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text="查無錢幣資料")
+                event.reply_token, TextSendMessage(text="⚠️ 查無錢幣資料")
             )
         return
 
@@ -944,7 +1004,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, flex)
         else:
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text="查無錢幣資料")
+                event.reply_token, TextSendMessage(text="⚠️ 查無錢幣資料")
             )
         return
 
@@ -958,7 +1018,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, flex_msg)
         else:
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text="查無錢幣資料")
+                event.reply_token, TextSendMessage(text="⚠️ 查無錢幣資料")
             )
         # return
 
@@ -1011,7 +1071,7 @@ def handle_message(event):
                                         "contents": [
                                             {
                                                 "type": "text",
-                                                "text": "🔴 總筆數：",
+                                                "text": "📂 總筆數：",
                                                 "size": "md",
                                                 "color": "#000000",
                                                 "weight": "bold",
@@ -1032,7 +1092,7 @@ def handle_message(event):
                                         "contents": [
                                             {
                                                 "type": "text",
-                                                "text": "🔴 實    存：",
+                                                "text": "🗂️ 實    存：",
                                                 "size": "md",
                                                 "color": "#000000",
                                                 "weight": "bold",
@@ -1053,7 +1113,7 @@ def handle_message(event):
                                         "contents": [
                                             {
                                                 "type": "text",
-                                                "text": "🔴 已返回：",
+                                                "text": "🗒️ 已返回：",
                                                 "size": "md",
                                                 "color": "#000000",
                                                 "weight": "bold",
@@ -1074,7 +1134,7 @@ def handle_message(event):
                                         "contents": [
                                             {
                                                 "type": "text",
-                                                "text": "🔴 鑑定中：",
+                                                "text": "🔍 鑑定中：",
                                                 "size": "md",
                                                 "color": "#000000",
                                                 "weight": "bold",
@@ -1095,7 +1155,7 @@ def handle_message(event):
                                         "contents": [
                                             {
                                                 "type": "text",
-                                                "text": "🔴 已售出：",
+                                                "text": "💰 已售出：",
                                                 "size": "md",
                                                 "color": "#000000",
                                                 "weight": "bold",
@@ -1116,7 +1176,7 @@ def handle_message(event):
                                         "contents": [
                                             {
                                                 "type": "text",
-                                                "text": "🔴 已贈送：",
+                                                "text": "🎁 已贈送：",
                                                 "size": "md",
                                                 "color": "#000000",
                                                 "weight": "bold",
@@ -1137,7 +1197,7 @@ def handle_message(event):
                                         "contents": [
                                             {
                                                 "type": "text",
-                                                "text": "🔴 已換盒：",
+                                                "text": "📦 已換盒：",
                                                 "size": "md",
                                                 "color": "#000000",
                                                 "weight": "bold",
@@ -1158,7 +1218,7 @@ def handle_message(event):
                                         "contents": [
                                             {
                                                 "type": "text",
-                                                "text": "🔴 未輸入：",
+                                                "text": "📝 未輸入：",
                                                 "size": "md",
                                                 "color": "#000000",
                                                 "weight": "bold",
@@ -1184,11 +1244,10 @@ def handle_message(event):
     else:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=f"❌ 指令錯誤,請重新輸入!"),
+            TextSendMessage(text=f"⚠️ 指令錯誤,請重新輸入!"),
         )
         return
 
 
 if __name__ == "__main__":
     app.run(port=5000)
-
