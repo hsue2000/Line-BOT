@@ -202,6 +202,7 @@ API_BASE_URL = os.getenv("API_BASE_URL")
 
 
 # 可使用的 LINE 使用者 ID 列表（White List）
+
 # 從 Vercel 的環境變數讀取
 whitelist_str = os.getenv("LINE_WHITELIST", "")
 
@@ -249,7 +250,7 @@ rich_menu_id = line_bot_api.create_rich_menu(rich_menu=rich_menu)
 
 # 透過網址下載圖片
 image_url = (
-    "https://hsue2000.synology.me/images/richmenu_1x4-1.png"  # 改成你的 CDN/圖床位置
+    "https://hsue2000.synology.me/images/richmenu_1x4.png"  # 改成你的 CDN/圖床位置
 )
 response = requests.get(image_url)
 image_data = BytesIO(response.content)
@@ -578,7 +579,7 @@ def handle_message(event):
                         },
                         {
                             "type": "text",
-                            "text": "版本: V1.0 (2025/8/24)",
+                            "text": "版本: V1.0 (2025/8/30)",
                             "size": "sm",
                             "weight": "bold",
                             "wrap": True,
@@ -1251,4 +1252,3 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
-
