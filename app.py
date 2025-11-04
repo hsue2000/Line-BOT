@@ -829,7 +829,7 @@ def handle_message(event):
                     "action": {
                         "type": "message",
                         "label": label_text,  # 按鈕顯示：含 emoji
-                        "text": f"查詢現狀 {raw_text}",  # 點了會送這句話回來
+                        "text": f"查詢現狀 {raw_text}",  
                     },
                 }
             )
@@ -1251,4 +1251,5 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
