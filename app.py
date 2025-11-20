@@ -307,6 +307,7 @@ def build_list_bubble(
     rows,
     title,
     page,
+    total,
     total_pages,
     row_action_prefix="編號",
     columns=("Serial_No", "Name", "Company", "Grade", "Material"),
@@ -364,6 +365,14 @@ def build_list_bubble(
             "text": f"{title}",
             "weight": "bold",
             "size": "md",
+            "align": "center",
+        },
+        {
+            "type": "text",
+            "text": f"🔍總共:{total}筆",
+            "weight": "bold",
+            "size": "md",
+            "color": "#007AFF",
             "align": "center",
         },
         {
@@ -493,6 +502,7 @@ def build_list_page(all_rows, page=1, title="查詢結果", query_cmd="名稱", 
     bubble = build_list_bubble(
         page_rows,
         title=title,
+        total=total,
         page=page,
         total_pages=total_pages,
         query_cmd=query_cmd,
@@ -522,7 +532,7 @@ def handle_message(event):
     response = requests.post(url, data=data)
 
     # 檢查是否為白名單成員
-    if user_id not in whitelist:
+     if user_id not in whitelist:
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="⚠️ 未授權你使用本機器人!")
         )
@@ -578,7 +588,7 @@ def handle_message(event):
                         },
                         {
                             "type": "text",
-                            "text": "版本: V1.0 (2025/8/30)",
+                            "text": "版本: V1.1 (2025/11/20)",
                             "size": "sm",
                             "weight": "bold",
                             "wrap": True,
@@ -829,7 +839,7 @@ def handle_message(event):
                     "action": {
                         "type": "message",
                         "label": label_text,  # 按鈕顯示：含 emoji
-                        "text": f"查詢現狀 {raw_text}",  
+                        "text": f"查詢現狀 {raw_text}",
                     },
                 }
             )
@@ -1251,5 +1261,3 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
-
-
