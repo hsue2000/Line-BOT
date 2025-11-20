@@ -532,11 +532,11 @@ def handle_message(event):
     response = requests.post(url, data=data)
 
     # 檢查是否為白名單成員
-    # if user_id not in whitelist:
-    #    line_bot_api.reply_message(
-    #        event.reply_token, TextSendMessage(text="⚠️ 未授權你使用本機器人!")
-    #    )
-    #    return
+     if user_id not in whitelist:
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text="⚠️ 未授權你使用本機器人!")
+        )
+        return
 
     user_text = event.message.text.strip()
 
@@ -1261,3 +1261,4 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
