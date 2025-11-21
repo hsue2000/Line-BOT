@@ -396,7 +396,7 @@ def build_list_bubble(
     }
   ],
   "align": "center"
-}
+},
         {
             "type": "text",
             "text": f"(第{page}/{total_pages}頁)",
@@ -1283,6 +1283,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
