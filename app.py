@@ -362,7 +362,7 @@ def build_list_bubble(
     body = [
         {
             "type": "text",
-            "text": f"{title}",
+            "text": f"🔍 {title}",
             "weight": "bold",
             "size": "md",
             "align": "center",
@@ -1261,6 +1261,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
