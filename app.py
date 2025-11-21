@@ -369,7 +369,7 @@ def build_list_bubble(
         },
         {
             "type": "text",
-            "text": f"數量:{total}筆",
+            "text": f"筆數:{total}筆",
             "weight": "bold",
             "size": "md",
             "color": "#007AFF",
@@ -1261,6 +1261,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
