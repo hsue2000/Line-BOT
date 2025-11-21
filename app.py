@@ -368,35 +368,13 @@ def build_list_bubble(
             "align": "center",
         },
         {
-  "type": "box",
-  "layout": "baseline",
-  "contents": [
-    {
-      "type": "text",
-      "text": "總共:",
-      "weight": "bold",
-      "size": "md",
-      "color": "#007AFF"
-    },
-    {
-      "type": "text",
-      "text": f"{total}",
-      "weight": "bold",
-      "size": "md",
-      "color": "#FF0000",
-      "margin": "sm"
-    },
-    {
-      "type": "text",
-      "text": "筆",
-      "weight": "bold",
-      "size": "md",
-      "color": "#007AFF",
-      "margin": "sm"
-    }
-  ],
-  "align": "center"
-},
+            "type": "text",
+            "text": f"數量:{total}筆",
+            "weight": "bold",
+            "size": "md",
+            "color": "#007AFF",
+            "align": "center",
+        },
         {
             "type": "text",
             "text": f"(第{page}/{total_pages}頁)",
@@ -1283,6 +1261,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
