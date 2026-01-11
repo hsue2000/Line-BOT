@@ -549,7 +549,7 @@ def handle_message(event):
                 "backgroundColor": "#FFF9C4",  # ✅ 整個泡泡背景
                 "hero": {
                     "type": "image",
-                    "url": "https://hsue2000.synology.me/images/KenKen1.png",  # 🖼️ 替換為作者頭像圖片 URL
+                    "url": "https://hsue2000.synology.me/images/KenKen2.png",  # 🖼️ 替換為作者頭像圖片 URL
                     "size": "full",
                     "backgroundColor": "#E0FFFF",  # ✅ 修改這裡為你想要的底色
                     "aspectRatio": "1:1",
@@ -1261,6 +1261,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
