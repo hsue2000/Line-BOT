@@ -94,8 +94,8 @@ def build_detail_flex(data_dict):
 
     # ==== 處理圖片連結 ====
     serial_no = str(data_dict.get("Serial_No", "")).strip()
-    main_base_url = "https://hsue2000.synology.me/Coin_PIC/"  # 主圖片網址（要改成你的）
-    backup_url = "https://hsue2000.synology.me/Coin_PIC/NO_PIC.jpg"  # 備用圖片
+    main_base_url = "https://hsue2000.synology.me/Coin/Coin_PIC/"  # 主圖片網址（要改成你的）
+    backup_url = "https://hsue2000.synology.me/Coin/Coin_PIC/NO_PIC.jpg"  # 備用圖片
 
     # 主圖 = base_url + Serial_No + .jpg
     main_url = f"{main_base_url}{serial_no}.jpg" if serial_no else ""
@@ -1261,6 +1261,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
