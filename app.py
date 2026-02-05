@@ -245,7 +245,7 @@ rich_menu = RichMenu(
     ],
 )
 
-rich_menu_id = line_bot_api.create_rich_menu(rich_menu=rich_menu)
+#rich_menu_id = line_bot_api.create_rich_menu(rich_menu=rich_menu)
 
 # 透過網址下載圖片
 image_url = (
@@ -1261,6 +1261,7 @@ def handle_message(event):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
