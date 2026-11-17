@@ -94,8 +94,8 @@ def build_detail_flex(data_dict):
 
     # ==== 處理圖片連結 ====
     serial_no = str(data_dict.get("Serial_No", "")).strip()
-    main_base_url = "https://hsue2000.synology.me/Coin/Coin_PIC/"  # 主圖片網址（要改成你的）
-    backup_url = "https://hsue2000.synology.me/Coin/Coin_PIC/NO_PIC.jpg"  # 備用圖片
+    main_base_url = "https://qunma.site.je/Coin/Coin_PIC/"  # 主圖片網址（要改成你的）
+    backup_url = "https://qunma.site.je/Coin/Coin_PIC/NO_PIC.jpg"  # 備用圖片
 
     # 主圖 = base_url + Serial_No + .jpg
     main_url = f"{main_base_url}{serial_no}.jpg" if serial_no else ""
@@ -249,7 +249,7 @@ rich_menu = RichMenu(
 
 # 透過網址下載圖片
 image_url = (
-    "https://hsue2000.synology.me/images/richmenu_1x4-2.png"  # 改成你的 CDN/圖床位置
+    "https://qunma.site.je/Images/richmenu_1x4-2.png"  # 改成你的 CDN/圖床位置
 )
 response = requests.get(image_url)
 image_data = BytesIO(response.content)
@@ -526,7 +526,7 @@ def handle_message(event):
     if user_id:
         show_loading_raw(user_id, seconds=15)
 
-    url = f"https://hsue2000.synology.me/api/search.php?token={API_TOKEN}"
+    url = f"https://qunma.site.je/api/search.php?token={API_TOKEN}"
     data = {"action": "GET_COUNT"}
 
     response = requests.post(url, data=data)
@@ -549,7 +549,7 @@ def handle_message(event):
                 "backgroundColor": "#FFF9C4",  # ✅ 整個泡泡背景
                 "hero": {
                     "type": "image",
-                    "url": "https://hsue2000.synology.me/images/KenKen2.png",  # 🖼️ 替換為作者頭像圖片 URL
+                    "url": "https://qunma.site.je/Images/KenKen2.png",  # 🖼️ 替換為作者頭像圖片 URL
                     "size": "full",
                     "backgroundColor": "#E0FFFF",  # ✅ 修改這裡為你想要的底色
                     "aspectRatio": "1:1",
@@ -624,7 +624,7 @@ def handle_message(event):
                     "contents": [
                         {
                             "type": "image",
-                            "url": "https://hsue2000.synology.me/images/head3.png",  # 圖片 URL (必須 HTTPS)
+                            "url": "https://qunma.site.je/Images/head3.png",  # 圖片 URL (必須 HTTPS)
                             "size": "md",
                             "aspect_ratio": "1:1",
                             "aspect_mode": "cover",
